@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  license:
+    name: MIT
+  title: Raamatute halduse API
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+paths:
+  /raamatu_otsing:
+    post:
+      operationId: raamatust_sone_otsimine
+      requestBody:
+        content:
+          application/json:
+            examples:
+              raamatuOtsing:
+                summary: Raamatu otsingu päringu näide
+                value:
+                  raamatu_id: 12345
+                  sone: estonia
+            schema:
+              $ref: '#/components/schemas/raamatuOtsinguSisend'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/raamatustSoneOtsimine_201_response'
+          description: Otsingu tulemus
+        "400":
+          content:
+            application/json: {}
+          description: Mitte korrektne sisend
+        "404":
+          content:
+            application/json: {}
+          description: sisendparameeter ei ole korrektne
+      summary: Alla tõmmatud raamtust sõne otsimine
+      x-openapi-router-controller: raamatu_teenus.controllers.default_controller
+  /raamatud:
+    get:
+      operationId: raamatu_nimekiri
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/raamatuNimekiri_200_response'
+          description: raamatute list
+      summary: Raamatute
+      x-openapi-router-controller: raamatu_teenus.controllers.default_controller
+    post:
+      operationId: raamatu_lisamine
+      requestBody:
+        content:
+          application/json:
+            examples:
+              raamatuNaide:
+                summary: Raamatu loomise päringu näide
+                value:
+                  raamatu_id: 12345
+            schema:
+              $ref: '#/components/schemas/raamatuLoomiseSisend'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/raamatuLisamine_201_response'
+          description: Õnnestus raamat luua
+      summary: Raamatu loomine
+      x-openapi-router-controller: raamatu_teenus.controllers.default_controller
+  /raamatud/{bookId}:
+    delete:
+      operationId: raamatu_kustutamine
+      parameters:
+      - description: kustutatava raamatu id
+        explode: false
+        in: path
+        name: bookId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          content:
+            application/json: {}
+          description: Kustutamine õnnestus
+        "404":
+          content:
+            application/json: {}
+          description: Raamatut ei leidu
+        "400":
+          content:
+            application/json: {}
+          description: sisendparameeter ei ole korrektne
+      summary: Raamatu kustutamine
+      x-openapi-router-controller: raamatu_teenus.controllers.default_controller
+    get:
+      operationId: raamatu_allatombamine
+      parameters:
+      - description: allalaetava raamatu id
+        explode: false
+        in: path
+        name: bookId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Allalaadimine õnnestus
+        "404":
+          content:
+            application/json: {}
+          description: Raamatut ei leidu
+      summary: Raamatu allatombamine
+      x-openapi-router-controller: raamatu_teenus.controllers.default_controller
+components:
+  schemas:
+    raamatuNimekiri_200_response:
+      example:
+        raamatud:
+        - raamatud
+        - raamatud
+      properties:
+        raamatud:
+          items:
+            type: string
+          title: raamatud
+          type: array
+      title: raamatuNimekiri_200_response
+      type: object
+    raamatuLoomiseSisend:
+      properties:
+        raamatu_id:
+          title: raamatu_id
+          type: integer
+      required:
+      - raamatu_id
+      title: raamatuLoomiseSisend
+      type: object
+    raamatuOtsinguSisend:
+      properties:
+        sone:
+          title: sone
+          type: string
+        raamatu_id:
+          title: raamatu_id
+          type: integer
+      required:
+      - raamatu_id
+      - sone
+      title: raamatuOtsinguSisend
+      type: object
+    raamatustSoneOtsimine_201_response:
+      example:
+        sone: sone
+        raamatu_id: 0
+        leitud: 6
+      properties:
+        sone:
+          title: sone
+          type: string
+        raamatu_id:
+          title: raamatu_id
+          type: integer
+        leitud:
+          title: leitud
+          type: integer
+      title: raamatustSoneOtsimine_201_response
+      type: object
+    raamatuLisamine_201_response:
+      example:
+        raamatu_id: 0
+        tulemus: tulemus
+      properties:
+        tulemus:
+          title: tulemus
+          type: string
+        raamatu_id:
+          title: raamatu_id
+          type: integer
+      required:
+      - raamatu_id
+      - tulemus
+      title: raamatuLisamine_201_response
+      type: object
